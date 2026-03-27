@@ -153,7 +153,7 @@ export const DoctorDashboard = ({ onNav, patientsData, setPatientsData }) => {
                       {p.status === "normal" ? "Normal" : p.status === "warning" ? "Atenção" : "Crítico"}
                     </span>
                   </td>
-                  <td style={{ fontSize: 12, color: "var(--muted)" }}>Há {p.lastUp}</td>
+                  <td style={{ fontSize: 12, color: "var(--muted)" }}>há {p.lastUp}</td>
                 </tr>
               ))}
             </tbody>

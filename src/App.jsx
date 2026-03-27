@@ -358,14 +358,14 @@ export default function App() {
       case "settings":  return <DoctorSettings role={role}/>;
       default:          return <DoctorDashboard onNav={setPage} patientsData={patientsData} setPatientsData={setPatientsData}/>;
     }
-    switch(page){
+    if(role==="patient") switch(page){
       case "dashboard": return <PatientDashboard patientsData={patientsData} setPatientsData={setPatientsData}/>;
       case "vitals":    return <VitalsPage patientsData={patientsData} setPatientsData={setPatientsData}/>;
-      case "alerts":    return <AlertsPage patientName={currentPatient?.name}/>;
       case "recommendations": return <RecommendationsPage patientsData={patientsData}/>;
       case "settings":  return <PatientSettings role={role}/>;
-      default:          return <PatientDashboard/>;
+      default:          return <PatientDashboard patientsData={patientsData} setPatientsData={setPatientsData}/>;
     }
+    return <DoctorDashboard onNav={setPage} patientsData={patientsData} setPatientsData={setPatientsData}/>;
   };
 
   return(
