@@ -203,12 +203,9 @@ const PATIENTS = [
   { id:1, patientId:"paciente123", name:"João da Silva", age:65, bpm:0, spo2:0, temp:0, bp:"0/0", status:"desconhecido", lastUp:"--", doctor:"Dra. Maria Santos" },
 ];
 const ALERTS = [
-  { id:1, patient:"Ana Ferreira",  type:"critical", msg:"BPM crítico: 122 bpm (limite: 100)",  time:"14:32" },
-  { id:2, patient:"Ana Ferreira",  type:"critical", msg:"SpO₂ baixo: 88% (mínimo: 90%)",       time:"14:32" },
-  { id:3, patient:"Ana Ferreira",  type:"critical", msg:"Temperatura elevada: 38.2°C",          time:"14:31" },
-  { id:4, patient:"Pedro Neto",    type:"warning",  msg:"BPM elevado: 95 bpm — em observação", time:"14:28" },
+  { id:4, patient:"João da Silva",    type:"warning",  msg:"BPM elevado: 95 bpm — em observação", time:"14:28" },
   { id:5, patient:"João da Silva", type:"normal",   msg:"Sinais vitais normalizados",            time:"14:15" },
-  { id:6, patient:"Luísa Campos",  type:"normal",   msg:"SpO₂ excelente: 98%",                  time:"13:55" },
+  { id:6, patient:"João da Silva",  type:"normal",   msg:"SpO₂ excelente: 98%",                  time:"13:55" },
 ];
 
 /* ─── ECG ─────────────────────────────────────────────────────────── */
@@ -540,8 +537,8 @@ const HomePage = ({ onNavigate }) => {
             <div>
               <div style={{display:"flex",flexDirection:"column",gap:20,marginBottom:32}}>
                 {[
-                  {icon:"phone",label:"Telefone",val:"+244 900 000 000",ic:"ic-blue"},
-                  {icon:"mail",label:"Email",val:"sipreavc@saude.ao",ic:"ic-teal"},
+                  {icon:"phone",label:"Telefone",val:"+244 926 586 504 / 975 360 352",ic:"ic-blue"},
+                  {icon:"mail",label:"Email",val:"sipreavc@gmail.com",ic:"ic-teal"},
                   {icon:"map",label:"Localização",val:"Luanda, Angola",ic:"ic-green"},
                 ].map((c,i)=>(
                   <div key={i} style={{display:"flex",alignItems:"center",gap:16}}>
@@ -1107,38 +1104,84 @@ const PatientDashboard=({patientsData, setPatientsData})=>{
         <div style={{marginTop:10,fontSize:12,color:"var(--muted)"}}>Mostrando até {history.length} leituras</div>
       </div>
 
-      <div className="dash-bottom" style={{display:"grid",gridTemplateColumns:"3fr 2fr",gap:18}}>
-        <div className="wcard" style={{padding:22}}>
-          <h3 style={{fontFamily:"'Sora'",fontWeight:700,fontSize:16,color:"var(--text)",marginBottom:16,display:"flex",alignItems:"center",gap:8}}>
-            <span className="ic-box ic-blue" style={{width:30,height:30,borderRadius:8}}><Icon name="bell" size={14} color="var(--blue)"/></span>
-            Alertas Recentes
-          </h3>
-          {ALERTS.slice(0,4).map(a=>(
-            <div key={a.id} className={`alert-row alert-${a.type}`}>
-              <div style={{width:32,height:32,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,background:a.type==="critical"?"rgba(231,76,60,.12)":a.type==="warning"?"rgba(243,156,18,.12)":"rgba(39,174,96,.12)"}}>
-                <Icon name={a.type==="critical"?"warn":a.type==="warning"?"warn":"check"} size={14} color={a.type==="critical"?"#e74c3c":a.type==="warning"?"#f39c12":"#27ae60"}/>
+      {/* Recomendações de Saúde */}
+      <div className="wcard" style={{padding:22,marginTop:18}}>
+        <h3 style={{fontFamily:"'Sora'",fontWeight:700,fontSize:16,color:"var(--text)",marginBottom:18,display:"flex",alignItems:"center",gap:8}}>
+          <span className="ic-box ic-green" style={{width:30,height:30,borderRadius:8}}><Icon name="check" size={14} color="#27ae60"/></span>
+          Dicas de Saúde Personalizadas
+        </h3>
+        <div style={{display:"flex",flexDirection:"column",gap:0}}>
+          {(()=>{
+            const recs = [];
+            
+            // Alimentação
+            if(metrics.bpm > 100 || metrics.spo2 < 95) {
+              recs.push({icon:'🍽️', titulo:'Reduzir Sódio', desc:'Reduza sal e alimentos processados. Máximo 5g por dia.', color:'#e74c3c', prio:'alta'});
+            }
+            if(metrics.temperature > 37.5) {
+              recs.push({icon:'💧', titulo:'Aumentar Hidratação', desc:'Beba 2.5-3L de água diariamente para regular temperatura corporal.', color:'#3498db', prio:'alta'});
+            }
+            if(metrics.bpm > 95) {
+              recs.push({icon:'☕', titulo:'Evitar Cafeína', desc:'Reduza café, chá e energéticos para diminuir o ritmo cardíaco.', color:'#8b4513', prio:'media'});
+            }
+            
+            // Exercícios
+            if(metrics.bpm > 70 && metrics.bpm <= 110) {
+              recs.push({icon:'🚶', titulo:'Caminhada Leve', desc:'30 min em ritmo moderado, 2-3 vezes por semana.', color:'#27ae60', prio:'media'});
+            }
+            if(metrics.spo2 < 96) {
+              recs.push({icon:'🧘', titulo:'Respiração Profunda', desc:'Exercícios diafragmáticos por 5-10 min para melhorar SpO2.', color:'#1e90ff', prio:'media'});
+            }
+            
+            // Sono
+            recs.push({icon:'😴', titulo:'Manter Rotina de Sono', desc:'Durma 7-9 horas por noite e mantenha horário regular.', color:'#4a0e4e', prio:'media'});
+            
+            // Monitoramento
+            if(metrics.bpm > 110 || metrics.spo2 < 94) {
+              recs.push({icon:'📊', titulo:'Monitorar Frequentemente', desc:'Medir sinais vitais a cada 2-3 horas se acima do normal.', color:'#ff6b6b', prio:'alta'});
+            }
+            
+            // Geral
+            if(metrics.bpm > 100) {
+              recs.push({icon:'🧘‍♂️', titulo:'Gestão de Stress', desc:'Pratique meditação, yoga ou técnicas de relaxamento.', color:'#9b59b6', prio:'media'});
+            }
+            
+            if(metrics.spo2 < 95) {
+              recs.push({icon:'☀️', titulo:'Descanso Ativo', desc:'Repouso leve sem esforço intenso. Mantenha ambiente arejado.', color:'#f39c12', prio:'alta'});
+            }
+            
+            recs.push({icon:'🚴', titulo:'Atividade Física Regular', desc:'Mantenha atividade moderada para fortalecer o sistema cardiovascular.', color:'#16a085', prio:'media'});
+            
+            if(recs.length === 0) {
+              recs.push({icon:'✅', titulo:'Parabéns!', desc:'Seus sinais estão normais. Continue monitorando regularmente!', color:'#27ae60', prio:'normal'});
+            }
+            
+            return recs.map((rec,i)=>(
+              <div key={i} style={{
+                display:"flex",
+                alignItems:"flex-start",
+                gap:12,
+                padding:"14px 14px",
+                borderBottom:i < recs.length-1 ? "1px solid rgba(0,0,0,0.05)" : "none",
+                borderLeft:`3px solid ${rec.color}`,
+                background:i%2===0 ? "rgba(0,0,0,0.01)" : "transparent",
+                transition:"all 0.2s"
+              }} onMouseEnter={(e)=>{e.currentTarget.style.background=`${rec.color}08`;}} onMouseLeave={(e)=>{e.currentTarget.style.background=i%2===0 ? "rgba(0,0,0,0.01)" : "transparent";}}>
+                <div style={{fontSize:22,flexShrink:0,marginTop:2}}>{rec.icon}</div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                    <div style={{fontSize:13,fontWeight:700,color:rec.color}}>{rec.titulo}</div>
+                    {rec.prio==='alta'&&<span style={{fontSize:9,fontWeight:700,color:'#fff',background:'#e74c3c',padding:'2px 6px',borderRadius:4}}>IMPORTANTE</span>}
+                  </div>
+                  <div style={{fontSize:12,color:'var(--muted)',lineHeight:1.5}}>{rec.desc}</div>
+                </div>
               </div>
-              <div style={{flex:1}}>
-                <div style={{fontSize:13,fontWeight:700,color:"var(--text)"}}>{a.patient}</div>
-                <div style={{fontSize:12,color:"var(--muted)"}}>{a.msg}</div>
-              </div>
-              <div style={{fontSize:11,color:"var(--muted)",whiteSpace:"nowrap"}}>{a.time}</div>
-            </div>
-          ))}
-        </div>
-        <div className="wcard" style={{padding:22}}>
-          <h3 style={{fontFamily:"'Sora'",fontWeight:700,fontSize:16,color:"var(--text)",marginBottom:16,display:"flex",alignItems:"center",gap:8}}>
-            <span className="ic-box ic-gray" style={{width:30,height:30,borderRadius:8}}><Icon name="doc" size={14} color="var(--muted)"/></span>
-            Informações
-          </h3>
-          {[{l:"Médico",v:p.doctor},{l:"Próxima Consulta",v:"22/03/2026"},{l:"Medicação",v:"AAS 100mg, Losartana"},{l:"Dispositivo",v:"ESP32 #001 · Online"}].map((x,i)=>(
-            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:i<3?"1px solid rgba(41,128,185,.07)":"none"}}>
-              <span style={{fontSize:12,color:"var(--muted)",fontWeight:600}}>{x.l}</span>
-              <span style={{fontSize:12,fontWeight:700,color:"var(--text)",textAlign:"right",maxWidth:160}}>{x.v}</span>
-            </div>
-          ))}
+            ));
+          })()}
         </div>
       </div>
+
+      
     </div>
   );
 };
@@ -1785,9 +1828,7 @@ const RecommendationsPage=({patientsData})=>{
 /* ─── ALERTS PAGE ─────────────────────────────────────────────────── */
 const AlertsPage=()=>{
   const [filter,setFilter]=useState("all");
-  const all=[...ALERTS,
-    {id:7,patient:"Pedro Neto",type:"warning",msg:"Temperatura levemente elevada: 37.1°C",time:"13:40"},
-    {id:8,patient:"Luísa Campos",type:"normal",msg:"BPM estável: 72 bpm",time:"13:20"},
+  const all=[...ALERTS
   ];
   const shown=filter==="all"?all:all.filter(a=>a.type===filter);
   return(
